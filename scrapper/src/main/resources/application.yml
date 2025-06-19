@@ -3,36 +3,23 @@ spring:
     name: scrapper
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/scrapper
+    url: jdbc:postgresql://localhost:5433/schedule
     username: postgres
     password: postgres
+  jackson:
+    time-zone: Asia/Yekaterinburg
   liquibase:
     enabled: false
   main:
     allow-bean-definition-overriding: true
-management:
-  metrics:
-      tags:
-        application:
-          ${spring.application.name}
-  endpoints:
-    web:
-      exposure:
-        include: prometheus,health,info
-  server:
-    port: 53518
 
 
 app:
   codes: 429, 503
   strategy: CONSTANT
-  topic: 1
   use-queue: false
 
-app1:
-  server: localhost:9092
-server:
-  port: 8080
+
 
 logging:
   config: classpath:log4j2-plain.xml

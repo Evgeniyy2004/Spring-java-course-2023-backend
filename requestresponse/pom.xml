@@ -7,24 +7,13 @@
     <parent>
         <groupId>edu.java</groupId>
         <artifactId>root</artifactId>
-        <version>${revision}</version>
+        <version>0.1</version>
     </parent>
 
     <artifactId>requestresponse</artifactId>
-    <version>${revision}</version>
+    <version>0.1</version>
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>6.1.3</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
@@ -54,6 +43,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.0</version>
             </plugin>
         </plugins>
     </build>

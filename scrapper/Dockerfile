@@ -1,3 +1,5 @@
-FROM openjdk:21-jdk-slim
-VOLUME ./target/scrapper.jar scrapper.jar
-ENTRYPOINT ["java","-jar","scrapper.jar"]
+FROM openjdk:21
+# Создание рабочей директории
+COPY ./target/commandservice.jar /app/commandservice.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app/commandservice.jar"]

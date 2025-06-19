@@ -5,7 +5,7 @@
 
     <groupId>edu.java</groupId>
     <artifactId>root</artifactId>
-    <version>${revision}</version>
+    <version>0.1</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -282,25 +282,6 @@
                             </configuration>
                         </execution>
                     </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>${maven-checkstyle-plugin.version}</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.puppycrawl.tools</groupId>
-                            <artifactId>checkstyle</artifactId>
-                            <version>10.9.1</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <configLocation>checkstyle.xml</configLocation>
-                        <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
-                        <consoleOutput>true</consoleOutput>
-                        <logViolationsToConsole>true</logViolationsToConsole>
-                        <failsOnError>true</failsOnError>
-                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -1,42 +1,11 @@
-app1:
-  codes: 429,503
-  strategy: CONSTANT
-  topic: 1
-  token: ${APP_TELEGRAM_TOKEN}
-  error-topic: 2
-app2:
-  server: localhost:9092
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5433/scrapper
-    username: postgres
-    password: postgres
-    driverClassName: org.postgresql.Driver
-  liquibase:
-    enabled: false
   application:
     name: bot
   jackson:
     time-zone: UTC
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+
 server:
   port: 8081
-management:
-  metrics:
-    tags:
-      application:
-        ${spring.application.name}
-  endpoints:
-    web:
-      base-path: /
-      exposure:
-        include: prometheus,health,info,metrics
-  server:
-    port: 51270
-
 
 
 logging:

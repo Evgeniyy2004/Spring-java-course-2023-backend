@@ -1,15 +1,12 @@
 package edu.java.configuration;
 
-import edu.java.botclient.UpdatesClient;
-import edu.java.siteclients.GitHubClient;
-import edu.java.siteclients.StackOverflowClient;
-import io.swagger.api.JdbcLinkRepository;
-import io.swagger.api.ScrapperQueueProducer;
+import edu.java.siteclients.BotClient;
+import io.swagger.api.JdbcScheduleRepository;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Properties;
 import javax.sql.DataSource;
-import listener.LinkUpdaterScheduler;
+import listener.ScheduleUpdaterScheduler;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -36,14 +33,10 @@ import reactor.util.retry.RetryBackoffSpec;
 @PropertySource("classpath:application.yml")
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 public class ApplicationConfig {
-    private static final String BASE = "http://localhost:8081/";
+    private static final String BASE = "http://schedulebot:8081/";
 
     @Value("${app.codes}")
     public ArrayList<Integer> codes;
-
-    @Value("${app.topic}")
-    @Getter
-    private static String topic;
 
     @Value("${app.use-queue}")
     @Getter
@@ -58,54 +51,20 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public LinkUpdaterScheduler scheduler(UpdatesClient client, ScrapperQueueProducer queue, JdbcLinkRepository repo) {
-        return new LinkUpdaterScheduler(client, queue, repo);
-    }
-
-    @Bean
-    public StackOverflowClient beanStack1() {
-        WebClient restClient =
-            WebClient.builder().baseUrl("https://api.stackexchange.com/").filter(withRetryableRequests()).build();
-        WebClientAdapter adapter = WebClientAdapter.create(restClient);
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-
-        return factory.createClient(StackOverflowClient.class);
-    }
-
-    @Bean
-    public GitHubClient beanGit1() {
-        WebClient restClient =
-            WebClient.builder().baseUrl("https://api.github.com/").filter(withRetryableRequests()).build();
-        WebClientAdapter adapter = WebClientAdapter.create(restClient);
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-        return factory.createClient(GitHubClient.class);
+    public ScheduleUpdaterScheduler scheduler(BotClient client, JdbcScheduleRepository repo) {
+        return new ScheduleUpdaterScheduler(client, repo);
     }
 
     private ExchangeFilterFunction withRetryableRequests() {
-        if (strategy == STRATEGY.EXPONENTIAL) {
-            return (request, next) -> next.exchange(request)
-                .flatMap(clientResponse -> Mono.just(clientResponse)
-                    .filter(response -> codes.contains(response.statusCode().value()))
-                    .flatMap(response -> clientResponse.createException())
-                    .flatMap(Mono::error)
-                    .thenReturn(clientResponse))
-                .retryWhen(this.retryBackoffExp());
-        } else {
-            return (request, next) -> next.exchange(request)
-                .flatMap(clientResponse -> Mono.just(clientResponse)
-                    .filter(response -> codes.contains(response.statusCode().value()))
-                    .flatMap(response -> clientResponse.createException())
-                    .flatMap(Mono::error)
-                    .thenReturn(clientResponse))
-                .retryWhen(this.retryConst());
-        }
-    }
 
-    private RetryBackoffSpec retryBackoffExp() {
-        return Retry.backoff(2 + 1, Duration.ofSeconds(2))
-            .filter(throwable -> throwable instanceof WebClientResponseException)
-            // here filter on the errors for which you want a retry
-            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> retrySignal.failure());
+        return (request, next) -> next.exchange(request)
+            .flatMap(clientResponse -> Mono.just(clientResponse)
+                .filter(response -> codes.contains(response.statusCode().value()))
+                .flatMap(response -> clientResponse.createException())
+                .flatMap(Mono::error)
+                .thenReturn(clientResponse))
+            .retryWhen(this.retryConst());
+
     }
 
     private RetryBackoffSpec retryConst() {
@@ -115,23 +74,12 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public UpdatesClient beanUpdates() {
+    public BotClient beanUpdates() {
         WebClient restClient = WebClient.builder().baseUrl(BASE).filter(withRetryableRequests()).build();
         WebClientAdapter adapter = WebClientAdapter.create(restClient);
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-        return factory.createClient(UpdatesClient.class);
+        return factory.createClient(BotClient.class);
     }
-
-    /*@Bean
-    public DataSource dataSource() {
-        var namePassword = "postgres";
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://localhost:5433/scrapper");
-        dataSource.setUsername(namePassword);
-        dataSource.setPassword(namePassword);
-        return dataSource;
-    }*/
 
     @Bean(name = "entityManagerFactory")
     public LocalSessionFactoryBean sessionFactory(DataSource source) {
