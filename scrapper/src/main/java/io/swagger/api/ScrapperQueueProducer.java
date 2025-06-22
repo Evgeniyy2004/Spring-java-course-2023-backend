@@ -15,7 +15,6 @@ public class ScrapperQueueProducer {
     }
 
     public void send(LinkUpdate update) {
-        // TODO
         template.send(ApplicationConfig.getTopic(), update.toString());
     }
 }

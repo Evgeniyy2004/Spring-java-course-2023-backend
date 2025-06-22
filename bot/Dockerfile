@@ -1,4 +1,5 @@
 FROM openjdk:21-jdk-slim
-VOLUME ./target/bot.jar bot.jar
-ENV APP_TELEGRAM_TOKEN ${APP_TELEGRAM_TOKEN}
+COPY ./target/bot.jar bot.jar
+ARG app_telegram_token
+ENV APP_TELEGRAM_TOKEN=$app_telegram_token
 ENTRYPOINT ["java","-jar","bot.jar"]

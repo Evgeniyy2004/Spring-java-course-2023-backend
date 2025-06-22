@@ -43,6 +43,7 @@ public class ClientConfiguration {
     @Getter
     private static String topic;
 
+
     @Value("${app1.token}")
     String token;
 
